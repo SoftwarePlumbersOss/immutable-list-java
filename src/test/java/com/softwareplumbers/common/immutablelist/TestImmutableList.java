@@ -6,6 +6,7 @@ import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
+import java.util.Optional;
 import java.util.TreeMap;
 import java.util.function.Function;
 
@@ -156,17 +157,43 @@ public class TestImmutableList {
 	@Test
 	public void testUpTo() {
 		ImmutableList<String> TEST1 = ImmutableList.of("www","softwareplumbers","com");
-		ImmutableList<String> result = TEST1.upTo(elem -> elem.contains("ware"));
-		assertEquals(ImmutableList.of("www","softwareplumbers"), result);
+		ImmutableList<String> result1 = TEST1.upTo(elem -> elem.contains("ware"));
+		ImmutableList<String> result2 = TEST1.upTo(elem -> elem.contains("wore"));
+		assertEquals(ImmutableList.of("www","softwareplumbers"), result1);
+		assertEquals(ImmutableList.empty(), result2);
 	}
 	
 	@Test
+	public void testUpToLast() {
+		ImmutableList<Integer> TEST1 = ImmutableList.of(1,2,3,2,4,5);
+		ImmutableList<Integer> result1 = TEST1.upTo(elem -> elem.equals(2));
+		ImmutableList<Integer> result2 = TEST1.upToLast(elem -> elem.equals(2));
+		ImmutableList<Integer> result3 = TEST1.upToLast(elem -> elem.equals(6));
+		assertEquals(ImmutableList.of(1,2), result1);
+		assertEquals(ImmutableList.of(1,2,3,2), result2);
+        assertEquals(ImmutableList.empty(), result3);
+	}
+    
+    @Test
 	public void testFrom() {
 		ImmutableList<String> TEST1 = ImmutableList.of("www","softwareplumbers","com");
-		ImmutableList<String> result = TEST1.fromEnd(elem -> elem.contains("ware"));
-		assertEquals(ImmutableList.of("com"), result);
+		ImmutableList<String> result1 = TEST1.from(elem -> elem.contains("ware"));
+		ImmutableList<String> result2 = TEST1.from(elem -> elem.contains("wore"));
+		assertEquals(ImmutableList.of("com"), result1);
+		assertEquals(TEST1, result2);
 	}
-	
+
+	@Test
+	public void testFromLast() {
+		ImmutableList<Integer> TEST1 = ImmutableList.of(1,2,3,2,4,5);
+		ImmutableList<Integer> result1 = TEST1.from(elem -> elem.equals(2));
+		ImmutableList<Integer> result2 = TEST1.fromLast(elem -> elem.equals(2));
+		ImmutableList<Integer> result3 = TEST1.fromLast(elem -> elem.equals(6));
+		assertEquals(ImmutableList.of(3,2,4,5), result1);
+		assertEquals(ImmutableList.of(4,5), result2);
+		assertEquals(TEST1, result3);
+	}    
+    
 	@Test
 	public void testRight() {
 		ImmutableList<String> ABCDEF = ImmutableList.of("a","b","c","d","e","f");
@@ -236,4 +263,14 @@ public class TestImmutableList {
         }
     }
     
+	@Test
+	public void testFind() {
+		ImmutableList<String> TEST1 = ImmutableList.of("one","two","three","four","five");
+		Optional<String> result1 = TEST1.find(elem -> elem.startsWith("t"));
+		Optional<String> result2 = TEST1.findLast(elem -> elem.startsWith("t"));
+		Optional<String> result3 = TEST1.findLast(elem -> elem.startsWith("z"));
+		assertEquals(Optional.of("two"), result1);
+		assertEquals(Optional.of("three"), result2);
+		assertEquals(Optional.empty(), result3);
+	} 
 }

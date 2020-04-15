@@ -2,6 +2,7 @@ package com.softwareplumbers.common.immutablelist;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.Optional;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
 import java.util.function.Function;
@@ -141,6 +142,62 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
 		return (result < 0) ? result : 1 + result;
 	}
 	
+    /** Get elements up to and including the last one matching the predicate. 
+     * 
+     * Returns an empty list if no element matches the predicate.
+     * 
+     * @param predicate
+     * @return Elements from the root of the list up to and including the last one matching the predicate.
+     */
+    public V upToLast(Predicate<T> predicate) {
+        if (isEmpty() || predicate.test(part)) return (V)this;
+        return parent.upToLast(predicate);
+    }
+    
+    /** Get elements up to the first one matching the predicate.
+     * 
+     * @param predicate
+     * @return Elements from the root of the list up to and including the first one matching the predicate.
+     */
+    public V upTo(Predicate<T> predicate) {
+        V result = upToLast(predicate);
+        if (result.isEmpty()) return result;
+        V prev = result.parent.upTo(predicate);
+        if (prev.isEmpty()) return result;
+        return prev;
+    }
+    
+    /** Get elements after the last one matching the predicate.
+     * 
+     * Returns 'this' if there is no element matching the predicate
+     * 
+     * @param predicate
+     * @return Elements from after the last one matching the predicate, up to the end of the list.
+     */
+    public V fromLast(Predicate<T> predicate) {
+        if (isEmpty()) return (V)this;
+        if (predicate.test(part)) return getEmpty();
+        V pr = parent.fromLast(predicate);
+        return pr == this ? (V)this : pr.add(part);
+    }
+    
+    /** Get elements after the first one matching the predicate.
+     * 
+     * Returns 'this' if there is no element matching the predicate
+     * 
+     * @param predicate
+     * @return Elements from after the first one matching the predicate, up to the end of the list.
+     */
+    public V from(Predicate<T> predicate) {
+        if (isEmpty()) return (V)this;
+        V more = parent.from(predicate);
+        if (more == parent) {
+            return predicate.test(part) ? getEmpty() : (V)this;
+        } else {
+            return more.add(part);
+        }
+    }
+    
 	/** Find if any part satisfies a predicate
 	 * 
 	 * @param predicate test to satisfy
@@ -328,16 +385,7 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
 	public boolean startsWith(AbstractImmutableList<T,?> list) {
 		return reverse().endsWith(list.reverse());
 	}
-	
-	/** Return elements in a list up to the one matching the predicate 
-	 * 
-	 * @param matching test to match
-	 * @return A list including elements up to the matching part
-	 */
-	public V upTo(Predicate<T> matching) {
-		return apply(getEmpty(), (result,elem)->result.add(elem), (result)->result.isEmpty() || !matching.test(result.part)); 
-	}
-	
+		
 	/** Return elements in a list up to the given index, counting from start
      * 
      * @param index index of first dropped part
@@ -355,15 +403,6 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
 	public V rightFromStart(int index) {
 		return right(size()-index);
 	}	
-
-	/** Return elements in a list from the last one matching the predicate 
-	 * 
-	 * @param matching Predicate to match an element in the name
-	 * @return A list including elements from the last one matching the predicate
-	 */
-	public V fromEnd(Predicate<T> matching) {
-		return applyReverse(getEmpty(), (result,elem)->result.add(elem), (result,elem) -> !matching.test(elem)).reverse();
-	}
 	
     /** Return the n rightmost elements of the list.
      * 
@@ -462,4 +501,19 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
 	public Iterator<T> reverseIterator() {
 		return new MyIterator<>(this);
 	}
+    
+    public Optional<T> findLast(Predicate<T> predicate) {
+        if (isEmpty()) return Optional.empty();
+        if (predicate.test(part)) return Optional.of(part);
+        return parent.findLast(predicate);
+        
+    }
+    
+    public Optional<T> find(Predicate<T> predicate) {
+        if (isEmpty()) return Optional.empty();
+        Optional<T> pr = parent.find(predicate);
+        if (pr.isPresent()) return pr;
+        if (predicate.test(part)) return Optional.of(part);
+        return Optional.empty();
+    }
 }
