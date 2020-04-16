@@ -142,29 +142,40 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
 		return (result < 0) ? result : 1 + result;
 	}
 	
-    /** Get elements up to and including the last one matching the predicate. 
+    /** Get elements up to the last one matching the predicate. 
      * 
      * Returns an empty list if no element matches the predicate.
      * 
      * @param predicate
-     * @return Elements from the root of the list up to and including the last one matching the predicate.
+     * @param inclusive flag sets whether the matched element it returned in the list
+     * @return Elements from the root of the list up to the last one matching the predicate.
      */
+    public V upToLast(Predicate<T> predicate, boolean inclusive) {
+        if (isEmpty()) return (V)this;
+        if (predicate.test(part)) return inclusive ? (V)this : parent;
+        return parent.upToLast(predicate, inclusive);
+    }
+    
     public V upToLast(Predicate<T> predicate) {
-        if (isEmpty() || predicate.test(part)) return (V)this;
-        return parent.upToLast(predicate);
+        return upToLast(predicate, true);
     }
     
     /** Get elements up to the first one matching the predicate.
      * 
      * @param predicate
+     * @param inclusive flag sets whether the matched element is returned in the list
      * @return Elements from the root of the list up to and including the first one matching the predicate.
      */
-    public V upTo(Predicate<T> predicate) {
-        V result = upToLast(predicate);
+    public V upTo(Predicate<T> predicate, boolean inclusive) {
+        V result = upToLast(predicate, inclusive);
         if (result.isEmpty()) return result;
-        V prev = result.parent.upTo(predicate);
+        V prev = result.parent.upTo(predicate, inclusive);
         if (prev.isEmpty()) return result;
         return prev;
+    }
+    
+    public V upTo(Predicate<T> predicate) {
+        return upTo(predicate, true);
     }
     
     /** Get elements after the last one matching the predicate.
@@ -172,13 +183,28 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
      * Returns 'this' if there is no element matching the predicate
      * 
      * @param predicate
+     * @param inclusive flag sets whether the matched element is returned in the list
+     * @return Elements from after the last one matching the predicate, up to the end of the list.
+     */
+    public V fromLast(Predicate<T> predicate, boolean inclusive) {
+        if (isEmpty()) return (V)this;
+        if (predicate.test(part)) {
+            return inclusive ? getEmpty().add(part) : getEmpty();
+        }
+        V pr = parent.fromLast(predicate, inclusive);
+        return pr == this ? (V)this : pr.add(part);
+    }
+    
+    /** Get elements after the last one matching the predicate.
+     * 
+     * Returns 'this' if there is no element matching the predicate. The element
+     * matching the predicate will not be in the returned list.
+     * 
+     * @param predicate
      * @return Elements from after the last one matching the predicate, up to the end of the list.
      */
     public V fromLast(Predicate<T> predicate) {
-        if (isEmpty()) return (V)this;
-        if (predicate.test(part)) return getEmpty();
-        V pr = parent.fromLast(predicate);
-        return pr == this ? (V)this : pr.add(part);
+        return fromLast(predicate, false);
     }
     
     /** Get elements after the first one matching the predicate.
@@ -186,16 +212,32 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
      * Returns 'this' if there is no element matching the predicate
      * 
      * @param predicate
-     * @return Elements from after the first one matching the predicate, up to the end of the list.
+     * @param inclusive flag sets whether the matched element is returned in the list
+     * @return Elements from the first one matching the predicate, up to the end of the list.
      */
-    public V from(Predicate<T> predicate) {
+    public V from(Predicate<T> predicate, boolean inclusive) {
         if (isEmpty()) return (V)this;
-        V more = parent.from(predicate);
+        V more = parent.from(predicate, inclusive);
         if (more == parent) {
-            return predicate.test(part) ? getEmpty() : (V)this;
+            if (predicate.test(part))
+                return inclusive ? getEmpty().add(part) : getEmpty(); 
+            else 
+                return (V)this;
         } else {
             return more.add(part);
         }
+    }
+    
+    /** Get elements after the first one matching the predicate.
+     * 
+     * Returns 'this' if there is no element matching the predicate. The element
+     * matching the predicate will not be in the returned list.
+     * 
+     * @param predicate
+     * @return Elements from the first one matching the predicate, up to the end of the list.
+     */
+    public V from (Predicate<T> predicate) {
+        return from(predicate, false);
     }
     
 	/** Find if any part satisfies a predicate

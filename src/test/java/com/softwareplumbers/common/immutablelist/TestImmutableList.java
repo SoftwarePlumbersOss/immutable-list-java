@@ -164,6 +164,15 @@ public class TestImmutableList {
 	}
 	
 	@Test
+	public void testUpToExclusive() {
+		ImmutableList<String> TEST1 = ImmutableList.of("www","softwareplumbers","com");
+		ImmutableList<String> result1 = TEST1.upTo(elem -> elem.contains("ware"), false);
+		ImmutableList<String> result2 = TEST1.upTo(elem -> elem.contains("wore"), false);
+		assertEquals(ImmutableList.of("www"), result1);
+		assertEquals(ImmutableList.empty(), result2);
+	}
+    
+    @Test
 	public void testUpToLast() {
 		ImmutableList<Integer> TEST1 = ImmutableList.of(1,2,3,2,4,5);
 		ImmutableList<Integer> result1 = TEST1.upTo(elem -> elem.equals(2));
@@ -175,6 +184,17 @@ public class TestImmutableList {
 	}
     
     @Test
+	public void testUpToLastExclusive() {
+		ImmutableList<Integer> TEST1 = ImmutableList.of(1,2,3,2,4,5);
+		ImmutableList<Integer> result1 = TEST1.upTo(elem -> elem.equals(2), false);
+		ImmutableList<Integer> result2 = TEST1.upToLast(elem -> elem.equals(2), false);
+		ImmutableList<Integer> result3 = TEST1.upToLast(elem -> elem.equals(6), false);
+		assertEquals(ImmutableList.of(1), result1);
+		assertEquals(ImmutableList.of(1,2,3), result2);
+        assertEquals(ImmutableList.empty(), result3);
+	}
+
+    @Test
 	public void testFrom() {
 		ImmutableList<String> TEST1 = ImmutableList.of("www","softwareplumbers","com");
 		ImmutableList<String> result1 = TEST1.from(elem -> elem.contains("ware"));
@@ -183,7 +203,16 @@ public class TestImmutableList {
 		assertEquals(TEST1, result2);
 	}
 
-	@Test
+    @Test
+	public void testFromInclusive() {
+		ImmutableList<String> TEST1 = ImmutableList.of("www","softwareplumbers","com");
+		ImmutableList<String> result1 = TEST1.from(elem -> elem.contains("ware"), true);
+		ImmutableList<String> result2 = TEST1.from(elem -> elem.contains("wore"), true);
+		assertEquals(ImmutableList.of("softwareplumbers","com"), result1);
+		assertEquals(TEST1, result2);
+	}
+
+    @Test
 	public void testFromLast() {
 		ImmutableList<Integer> TEST1 = ImmutableList.of(1,2,3,2,4,5);
 		ImmutableList<Integer> result1 = TEST1.from(elem -> elem.equals(2));
@@ -194,7 +223,18 @@ public class TestImmutableList {
 		assertEquals(TEST1, result3);
 	}    
     
-	@Test
+    @Test
+	public void testFromLastInclusive() {
+		ImmutableList<Integer> TEST1 = ImmutableList.of(1,2,3,2,4,5);
+		ImmutableList<Integer> result1 = TEST1.from(elem -> elem.equals(2), true);
+		ImmutableList<Integer> result2 = TEST1.fromLast(elem -> elem.equals(2), true);
+		ImmutableList<Integer> result3 = TEST1.fromLast(elem -> elem.equals(6),true);
+		assertEquals(ImmutableList.of(2,3,2,4,5), result1);
+		assertEquals(ImmutableList.of(2,4,5), result2);
+		assertEquals(TEST1, result3);
+	}    
+
+    @Test
 	public void testRight() {
 		ImmutableList<String> ABCDEF = ImmutableList.of("a","b","c","d","e","f");
 		ImmutableList<String> DEF = ImmutableList.of("d","e","f");
