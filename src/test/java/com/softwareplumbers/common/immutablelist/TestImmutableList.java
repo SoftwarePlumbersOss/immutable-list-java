@@ -169,7 +169,7 @@ public class TestImmutableList {
 		ImmutableList<String> result1 = TEST1.upTo(elem -> elem.contains("ware"), false);
 		ImmutableList<String> result2 = TEST1.upTo(elem -> elem.contains("wore"), false);
 		assertEquals(ImmutableList.of("www"), result1);
-		assertEquals(ImmutableList.empty(), result2);
+		assertEquals(TEST1, result2);
 	}
     
     @Test
@@ -191,7 +191,7 @@ public class TestImmutableList {
 		ImmutableList<Integer> result3 = TEST1.upToLast(elem -> elem.equals(6), false);
 		assertEquals(ImmutableList.of(1), result1);
 		assertEquals(ImmutableList.of(1,2,3), result2);
-        assertEquals(ImmutableList.empty(), result3);
+        assertEquals(TEST1, result3);
 	}
 
     @Test
@@ -209,7 +209,7 @@ public class TestImmutableList {
 		ImmutableList<String> result1 = TEST1.from(elem -> elem.contains("ware"), true);
 		ImmutableList<String> result2 = TEST1.from(elem -> elem.contains("wore"), true);
 		assertEquals(ImmutableList.of("softwareplumbers","com"), result1);
-		assertEquals(TEST1, result2);
+		assertTrue(result2.isEmpty());
 	}
 
     @Test
@@ -231,7 +231,7 @@ public class TestImmutableList {
 		ImmutableList<Integer> result3 = TEST1.fromLast(elem -> elem.equals(6),true);
 		assertEquals(ImmutableList.of(2,3,2,4,5), result1);
 		assertEquals(ImmutableList.of(2,4,5), result2);
-		assertEquals(TEST1, result3);
+		assertTrue(result3.isEmpty());
 	}    
 
     @Test
