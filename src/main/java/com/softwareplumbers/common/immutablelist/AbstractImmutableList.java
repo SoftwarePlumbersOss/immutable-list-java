@@ -341,7 +341,7 @@ public abstract class AbstractImmutableList<T extends Comparable<T>, V extends A
 		return applyReverse(applyTo, accumulator, (x,y)->true);
 	}
     
-    private static String escape(final String toEscape, final String separator, final String escape) {
+    protected static String escape(final String toEscape, final String separator, final String escape) {
         return toEscape.replace(escape,escape+escape).replace(separator, escape + separator);
     }
 	
